@@ -154,9 +154,10 @@ func main() {
 		prusaConnectExporterPath = "/metrics"
 	}
 
-	prometheus.MustRegister(NewCollector(prusaConnectHost))
+	reg := prometheus.NewPedanticRegistry()
+	reg.MustRegister(NewCollector(prusaConnectHost))
 
-	http.Handle(prusaConnectExporterPath, promhttp.Handler())
+	http.Handle(prusaConnectExporterPath, promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
